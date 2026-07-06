@@ -63,6 +63,7 @@ export default function Navbar({
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showMegaMenu, setShowMegaMenu] = useState(false);
+  const [mobileMaterialsOpen, setMobileMaterialsOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
   const menuItems = [
@@ -96,7 +97,7 @@ export default function Navbar({
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center gap-1.5">
             {menuItems.map((item) => {
-              if (item.view === "materials" || item.view === "tests") {
+              if (item.view === "materials") {
                 // We render Study Material with a potential micro-dropdown for neatness
                 return (
                   <div 
@@ -117,8 +118,8 @@ export default function Navbar({
                     </button>
 
                     {showMegaMenu && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[340px] mt-2 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl animate-revealUp">
-                        <div className="space-y-1">
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[340px] pt-1.5 z-50">
+                        <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl animate-revealUp space-y-1">
                           <button 
                             onClick={() => handleNav("materials")} 
                             className="w-full flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition-colors"
@@ -243,19 +244,64 @@ export default function Navbar({
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            {menuItems.map((item) => (
-              <button
-                key={item.view}
-                onClick={() => handleNav(item.view)}
-                className={`p-3 rounded-xl text-left text-xs font-bold transition-all ${
-                  currentView === item.view
-                    ? "bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400"
-                    : "bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+            {menuItems.map((item) => {
+              if (item.view === "materials") {
+                return (
+                  <div key={item.view} className="col-span-2 space-y-1.5">
+                    <button
+                      onClick={() => setMobileMaterialsOpen(!mobileMaterialsOpen)}
+                      className={`w-full p-3 rounded-xl text-left text-xs font-bold transition-all flex items-center justify-between ${
+                        currentView === "materials" || currentView === "notes" || currentView === "videos"
+                          ? "bg-amber-500/10 text-amber-500 dark:bg-amber-950/20 dark:text-amber-400"
+                          : "bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300"
+                      }`}
+                    >
+                      <span>Study Material</span>
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileMaterialsOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    {mobileMaterialsOpen && (
+                      <div className="pl-4 pr-2 py-1.5 space-y-1.5 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border border-slate-100 dark:border-slate-800/40">
+                        <button
+                          onClick={() => { handleNav("materials"); setMobileMaterialsOpen(false); }}
+                          className="w-full py-2 px-3 text-left text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 text-slate-600 dark:text-slate-300"
+                        >
+                          <BookMarked className="w-3.5 h-3.5 text-amber-500" />
+                          <span>Syllabus Sheets</span>
+                        </button>
+                        <button
+                          onClick={() => { handleNav("notes"); setMobileMaterialsOpen(false); }}
+                          className="w-full py-2 px-3 text-left text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 text-slate-600 dark:text-slate-300"
+                        >
+                          <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>Chapterwise Notes</span>
+                        </button>
+                        <button
+                          onClick={() => { handleNav("videos"); setMobileMaterialsOpen(false); }}
+                          className="w-full py-2 px-3 text-left text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 text-slate-600 dark:text-slate-300"
+                        >
+                          <Calendar className="w-3.5 h-3.5 text-red-500" />
+                          <span>Video Lectures</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <button
+                  key={item.view}
+                  onClick={() => handleNav(item.view)}
+                  className={`p-3 rounded-xl text-left text-xs font-bold transition-all ${
+                    currentView === item.view
+                      ? "bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400"
+                      : "bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
 
           <div className="pt-3 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-2">

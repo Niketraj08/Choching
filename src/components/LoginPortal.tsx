@@ -24,44 +24,55 @@ export default function LoginPortal({ onLoginSuccess, setView }: LoginPortalProp
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleQuickDemoLogin = (role: "student" | "teacher" | "admin") => {
-    let demoUser = "";
-    if (role === "student") demoUser = "Aarav Sharma (Student)";
-    if (role === "teacher") demoUser = "Er. Alok Verma (IIT Kanpur - HOD)";
-    if (role === "admin") demoUser = "Prof. Alok Verma (Director / Founder)";
-    
-    setUsername(role);
-    setPassword("password");
-    setSelectedRole(role);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleQuickDemoLogin = async (role: "student" | "teacher" | "admin") => {
     setError("");
-    
-    // Simulate slight delay for real system feedback
-    setTimeout(() => {
-      onLoginSuccess(role, demoUser);
-    }, 400);
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: role, password: "password", role })
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        onLoginSuccess(data.role, data.username);
+      } else {
+        setError(data.error || "Login failed");
+      }
+    } catch (err) {
+      setError("Unable to connect to SK Coaching authorization server.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !password) {
       setError("Please fill in all fields.");
       return;
     }
 
-    // Direct check for custom input or default credentials
-    const cleanUser = username.trim().toLowerCase();
-    if (cleanUser === "student" && password === "password") {
-      onLoginSuccess("student", "Aarav Sharma (Student)");
-    } else if (cleanUser === "teacher" && password === "password") {
-      onLoginSuccess("teacher", "Er. Alok Verma (IIT Kanpur)");
-    } else if (cleanUser === "admin" && password === "password") {
-      onLoginSuccess("admin", "Prof. Alok Verma (Director)");
-    } else if (password === "password") {
-      // Wildcard standard access for custom usernames
-      const formattedRole = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
-      onLoginSuccess(selectedRole, `${username} (${formattedRole})`);
-    } else {
-      setError("Invalid password. Use 'password' for demo credentials.");
+    setError("");
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, role: selectedRole })
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        onLoginSuccess(data.role, data.username);
+      } else {
+        setError(data.error || "Authentication failed. Incorrect password.");
+      }
+    } catch (err) {
+      setError("Connection to secure backend server refused.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -202,10 +213,20 @@ export default function LoginPortal({ onLoginSuccess, setView }: LoginPortalProp
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white dark:bg-primary dark:text-slate-950 dark:hover:bg-yellow-400 font-extrabold text-xs tracking-wider uppercase shadow-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+              disabled={isLoading}
+              className="w-full py-3.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white dark:bg-primary dark:text-slate-950 dark:hover:bg-yellow-400 font-extrabold text-xs tracking-wider uppercase shadow-xl flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-55 disabled:cursor-not-allowed"
             >
-              <LogIn className="w-4 h-4" />
-              <span>Establish Secure Session</span>
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent dark:border-white dark:border-t-transparent rounded-full animate-spin" />
+                  <span>Verifying Session...</span>
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-4 h-4" />
+                  <span>Establish Secure Session</span>
+                </>
+              )}
             </button>
           </form>
 

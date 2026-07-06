@@ -22,6 +22,7 @@ import {
 import { X, Sparkles, AlertCircle } from "lucide-react";
 import { toppersData } from "./data";
 import TopperDetailView from "./components/TopperDetailView";
+import OfflineCenterSection from "./components/OfflineCenterSection";
 
 export default function App() {
   const [currentView, setView] = useState<string>("home");
@@ -150,6 +151,7 @@ export default function App() {
               onExploreAllFeatures={() => handleSetView("materials")} 
               onEnrollClick={() => handleOpenEnrollForm("Class 12 Science")}
             />
+            <OfflineCenterSection onOpenAdmissionForm={handleOpenEnrollForm} />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <AboutSection />
               <div className="border-t border-slate-200/50 dark:border-slate-800/50 my-16" />

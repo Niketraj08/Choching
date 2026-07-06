@@ -82,6 +82,54 @@ const mockTasks: StudentTask[] = [
 
 // --- API Endpoints ---
 
+// Login Authentication Endpoint
+app.post("/api/auth/login", (req: Request, res: Response) => {
+  const { username, password, role } = req.body;
+  
+  if (!username || !password || !role) {
+    res.status(400).json({ error: "Please enter both username and password." });
+    return;
+  }
+
+  const cleanUser = username.trim().toLowerCase();
+  
+  // Real verification check on backend
+  if (password !== "password") {
+    res.status(401).json({ error: "Invalid credentials. Use 'password' for demo access." });
+    return;
+  }
+
+  let finalName = username;
+  if (cleanUser === "student") {
+    finalName = "Aarav Sharma (Student)";
+  } else if (cleanUser === "teacher") {
+    finalName = "Er. Alok Verma (IIT Kanpur - HOD)";
+  } else if (cleanUser === "admin") {
+    finalName = "Prof. Alok Verma (Director / Founder)";
+  } else {
+    // Custom formatted name
+    const formattedRole = role.charAt(0).toUpperCase() + role.slice(1);
+    finalName = `${username} (${formattedRole})`;
+  }
+
+  // Create a server-side log in our Reports system for live admin dashboard view
+  const loginLog: ReportRow = {
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    category: "Security",
+    student: finalName,
+    details: `Successful session established as ${role.toUpperCase()} from web portal.`,
+    status: "Authenticated"
+  };
+  mockReports.unshift(loginLog);
+
+  res.json({
+    success: true,
+    role,
+    username: finalName,
+    token: `sk-session-${role}-${Date.now()}`
+  });
+});
+
 // API Chat Endpoint (with fallback logic)
 app.post("/api/chat", async (req: Request, res: Response) => {
   const { messages } = req.body;
