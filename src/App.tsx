@@ -28,7 +28,7 @@ export default function App() {
   const [isPageLoading, setIsPageLoading] = useState<boolean>(false);
   const [isOpeningSplash, setIsOpeningSplash] = useState<boolean>(true);
   const [selectedTopperId, setSelectedTopperId] = useState<string | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Auto-terminate the high-end splash screen on mount to transition into the home view

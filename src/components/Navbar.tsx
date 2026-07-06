@@ -191,14 +191,6 @@ export default function Navbar({
               </div>
             </div>
 
-            {/* Dark Mode Switch */}
-            <button
-              onClick={toggleDarkMode}
-              className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-            >
-              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
-            </button>
-
             {/* Login Button (Outline style) */}
             <button
               onClick={() => handleNav("dashboard")}
@@ -218,12 +210,6 @@ export default function Navbar({
 
           {/* Mobile Navigation controls */}
           <div className="flex lg:hidden items-center gap-2">
-            <button
-              onClick={toggleDarkMode}
-              className="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-            >
-              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
-            </button>
             <button
               onClick={() => handleNav("dashboard")}
               className="p-1.5 rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 cursor-pointer"
