@@ -1,0 +1,8 @@
+{
+  "name": "SK Coaching Institute",
+  "description": "The Best Place To Learn & Grow For Classes 8 to 12. Providing tailored mentoring, comprehensive chapter resources, premium mock test suites, and interactive learning support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
