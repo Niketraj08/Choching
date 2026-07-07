@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
-import ScholarshipBanner from "./components/ScholarshipBanner";
 import HeroSection from "./components/HeroSection";
 import AIChatbot from "./components/AIChatbot";
 import Footer from "./components/Footer";
@@ -259,9 +258,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-slate-100 transition-colors duration-300 flex flex-col justify-between">
       
-      {/* Scholarship Headline announcement */}
-      <ScholarshipBanner onRegisterClick={() => handleOpenEnrollForm("OSET Scholarship Test")} />
-
       {/* Sticky Top Navbar */}
       <Navbar
         currentView={currentView}
@@ -310,7 +306,7 @@ export default function App() {
 
             <div className="mb-5 pr-6">
               <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-200/50 dark:bg-amber-950/30 dark:text-amber-300 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase mb-1.5">
-                <Sparkles className="w-3 h-3 text-amber-500" /> BRIGHTPATH ADMISSIONS 2025
+                <Sparkles className="w-3 h-3 text-amber-500" /> SK COACHING ADMISSIONS 2025
               </span>
               <h4 className="text-base font-extrabold text-slate-900 dark:text-white">Register Direct Enrollment Profile</h4>
               <p className="text-xs text-slate-500 mt-1">Submit student credentials. Our senior counseling board will reach you for interview setup.</p>

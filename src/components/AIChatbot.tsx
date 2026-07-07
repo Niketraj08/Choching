@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { MessageSquare, Send, X, Bot, User, Sparkles, MessageCircle } from "lucide-react";
+import { MessageSquare, Send, X, Bot, User, Sparkles } from "lucide-react";
 
 export default function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
+  const [hasUnread, setHasUnread] = useState(true);
   const [messages, setMessages] = useState<Array<{ sender: "user" | "bot"; text: string }>>([
     { sender: "bot", text: "Hello! I am SK Coaching AI, your intelligent academic support advisor. Ask me anything about admission deadlines, scholar tests, Class 8-12 syllabi, or doubt clearing!" },
   ]);
@@ -126,7 +127,7 @@ export default function AIChatbot() {
           >
             <input
               type="text"
-              placeholder="Ask BrightPath AI support..."
+              placeholder="Ask SK Coaching AI support..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="flex-1 bg-slate-100 dark:bg-slate-800 border-none outline-none text-xs rounded-xl px-3.5 py-2.5 text-slate-800 dark:text-white"
@@ -142,12 +143,17 @@ export default function AIChatbot() {
         </div>
       ) : (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            setIsOpen(true);
+            setHasUnread(false);
+          }}
           className="w-14 h-14 rounded-full bg-gradient-to-tr from-primary to-secondary text-white flex items-center justify-center shadow-xl shadow-primary/20 hover:shadow-primary/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 group relative cursor-pointer"
-          title="Talk with BrightPath AI Academic Helper"
+          title="Talk with SK Coaching AI Academic Helper"
         >
           <MessageSquare className="w-6 h-6 group-hover:scale-105 transition-transform" />
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-bounce">1</span>
+          {hasUnread && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-bounce">1</span>
+          )}
         </button>
       )}
 

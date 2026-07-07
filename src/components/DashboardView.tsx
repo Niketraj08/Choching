@@ -127,7 +127,7 @@ export default function DashboardView({ userRole, userName, onLogout }: Dashboar
       if (teachersRes.ok) setDbTeachers(await teachersRes.json());
       if (perfRes.ok) setDbPerformance(await perfRes.json());
     } catch (err) {
-      console.error("Error synchronizing data with BrightPath backend:", err);
+      console.error("Error synchronizing data with SK Coaching backend:", err);
     }
   };
 
@@ -290,7 +290,7 @@ export default function DashboardView({ userRole, userName, onLogout }: Dashboar
       });
 
       if (response.ok) {
-        setBookingMessage("✓ Your coaching session is booked successfully and synchronized to BrightPath Google Calendar simulation.");
+        setBookingMessage("✓ Your coaching session is booked successfully and synchronized to SK Coaching Google Calendar simulation.");
         setBookingDate("2026-07-08");
         setBookingTime("16:00");
         fetchData(); // reload
@@ -377,7 +377,7 @@ export default function DashboardView({ userRole, userName, onLogout }: Dashboar
             {activeTab === "admin" && "🛡️ EXECUTIVE SYSTEM ADMIN PANEL"}
           </span>
           <h2 className="text-2xl font-extrabold tracking-tight">
-            <span className="gold-white-gradient">BrightPath Coaching Portal</span>
+            <span className="gold-white-gradient">SK Coaching Portal</span>
           </h2>
           {userName && (
             <p className="text-xs text-slate-500 font-medium mt-1">
@@ -504,14 +504,14 @@ export default function DashboardView({ userRole, userName, onLogout }: Dashboar
                   <div className="p-4 rounded-xl glass-panel border border-slate-200 dark:border-slate-800/80">
                     <span className="text-[10px] font-bold font-mono text-slate-400 block uppercase tracking-widest">Leader Rank</span>
                     <h5 className="text-2xl font-extrabold text-slate-800 dark:text-white mt-1">#4 Batch</h5>
-                    <span className="text-[9px] text-amber-500 font-mono font-medium block mt-0.5">BrightPath Top Tier</span>
+                    <span className="text-[9px] text-amber-500 font-mono font-medium block mt-0.5">SK Coaching Top Tier</span>
                   </div>
                 </div>
 
                 {/* Performance overview chart (SVG) */}
                 <div className="p-5 rounded-2xl glass-panel border border-slate-200/60 dark:border-slate-800/60">
                   <h4 className="text-sm font-extrabold tracking-tight mb-4">
-                    <span className="gold-white-gradient">BrightPath Score Progression Index</span>
+                    <span className="gold-white-gradient">SK Coaching Score Progression Index</span>
                   </h4>
                   
                   {/* Beautiful SVG graph for visual excellence */}
@@ -839,7 +839,7 @@ export default function DashboardView({ userRole, userName, onLogout }: Dashboar
                   <div className="mb-4">
                     <h4 className="text-sm font-extrabold tracking-tight flex items-center gap-1.5">
                       <Award className="w-4 h-4 text-amber-500 animate-bounce" />
-                      <span className="gold-white-gradient">BrightPath Competitive Batch Leaderboard</span>
+                      <span className="gold-white-gradient">SK Coaching Competitive Batch Leaderboard</span>
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">Top performing students across all programs based on weekly evaluation points.</p>
                   </div>

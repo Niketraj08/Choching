@@ -268,7 +268,7 @@ export default function LoginPortal({ onLoginSuccess, setView }: LoginPortalProp
       </div>
 
       <div className="mt-8 text-center text-[11px] text-slate-400 font-medium">
-        <span>Protected by BrightPath Security Protocols. Back to </span>
+        <span>Protected by SK Coaching Security Protocols. Back to </span>
         <button 
           onClick={() => setView("home")} 
           className="text-amber-800 dark:text-primary font-bold hover:underline"

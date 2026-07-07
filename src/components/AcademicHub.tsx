@@ -340,7 +340,7 @@ export default function AcademicHub({ initialTab = "notes" }: AcademicHubProps) 
               {/* Exam Header */}
               <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-6">
                 <div>
-                  <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">BrightPath Mock Exam Suite Simulator</h4>
+                  <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">SK Coaching Mock Exam Suite Simulator</h4>
                   <span className="text-xs text-slate-400 block mt-0.5">Attempt the questions below to evaluate your core chemistry and mathematics.</span>
                 </div>
                 <button
@@ -433,7 +433,7 @@ export default function AcademicHub({ initialTab = "notes" }: AcademicHubProps) 
                   <iframe
                     className="w-full h-full"
                     src={`https://www.youtube.com/embed/${playingVideoId}?autoplay=1`}
-                    title="BrightPath Lecture Video Player"
+                    title="SK Coaching Lecture Video Player"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen

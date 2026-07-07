@@ -295,7 +295,7 @@ export function GallerySection() {
         <div>
           <span className="text-xs font-mono font-bold text-primary uppercase block">VISUAL EXPERIENCE</span>
           <h3 className="text-2xl font-extrabold tracking-tight">
-            <span className="gold-white-gradient">BrightPath Campus & Celebrations</span>
+            <span className="gold-white-gradient">SK Coaching Campus & Celebrations</span>
           </h3>
         </div>
 
