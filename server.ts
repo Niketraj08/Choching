@@ -3,8 +3,39 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import fs from "fs";
 
 dotenv.config();
+
+// Setup mock database file utility
+const dbPath = path.join(process.cwd(), "mock-db.json");
+
+interface DbSchema {
+  students: any[];
+  teachers: any[];
+  performanceData: any[];
+}
+
+function readDb(): DbSchema {
+  try {
+    if (fs.existsSync(dbPath)) {
+      const fileData = fs.readFileSync(dbPath, "utf-8");
+      return JSON.parse(fileData);
+    }
+  } catch (err) {
+    console.error("Error reading mock-db.json, using fallback schema:", err);
+  }
+  return { students: [], teachers: [], performanceData: [] };
+}
+
+function writeDb(data: DbSchema) {
+  try {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), "utf-8");
+  } catch (err) {
+    console.error("Error saving mock-db.json:", err);
+  }
+}
+
 
 // Setup dirname/filename for ES module support
 const __filename = fileURLToPath(import.meta.url);
@@ -282,6 +313,323 @@ app.patch("/api/tasks/:id", (req: Request, res: Response) => {
   } else {
     res.status(404).json({ error: "Task not found" });
   }
+});
+
+// --- CRUD API for Students ---
+app.get("/api/students", (req: Request, res: Response) => {
+  const db = readDb();
+  res.json(db.students);
+});
+
+app.post("/api/students", (req: Request, res: Response) => {
+  const db = readDb();
+  const { name, email, course, batch, attendance, enrollmentDate } = req.body;
+  
+  if (!name || !email) {
+    res.status(400).json({ error: "Name and Email are required." });
+    return;
+  }
+
+  const newStudent = {
+    id: `student-${Date.now()}`,
+    name,
+    email,
+    course: course || "Class 12 Science",
+    batch: batch || "Batch A",
+    attendance: Number(attendance) || 100,
+    enrollmentDate: enrollmentDate || new Date().toISOString().substring(0, 10)
+  };
+
+  db.students.push(newStudent);
+  writeDb(db);
+
+  // Auto-log to mockReports
+  const logRow: ReportRow = {
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    category: "Student CRUD",
+    student: name,
+    details: `Added new student record: ${course} (${batch})`,
+    status: "Processed"
+  };
+  mockReports.unshift(logRow);
+
+  res.status(201).json(newStudent);
+});
+
+app.put("/api/students/:id", (req: Request, res: Response) => {
+  const db = readDb();
+  const { id } = req.params;
+  const index = db.students.findIndex(s => s.id === id);
+  if (index === -1) {
+    res.status(404).json({ error: "Student not found" });
+    return;
+  }
+
+  const { name, email, course, batch, attendance, enrollmentDate } = req.body;
+  db.students[index] = {
+    ...db.students[index],
+    name: name || db.students[index].name,
+    email: email || db.students[index].email,
+    course: course || db.students[index].course,
+    batch: batch || db.students[index].batch,
+    attendance: attendance !== undefined ? Number(attendance) : db.students[index].attendance,
+    enrollmentDate: enrollmentDate || db.students[index].enrollmentDate
+  };
+
+  writeDb(db);
+
+  // Auto-log to mockReports
+  const logRow: ReportRow = {
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    category: "Student CRUD",
+    student: db.students[index].name,
+    details: `Updated student record.`,
+    status: "Processed"
+  };
+  mockReports.unshift(logRow);
+
+  res.json(db.students[index]);
+});
+
+app.delete("/api/students/:id", (req: Request, res: Response) => {
+  const db = readDb();
+  const { id } = req.params;
+  const student = db.students.find(s => s.id === id);
+  if (!student) {
+    res.status(404).json({ error: "Student not found" });
+    return;
+  }
+
+  db.students = db.students.filter(s => s.id !== id);
+  writeDb(db);
+
+  // Auto-log to mockReports
+  const logRow: ReportRow = {
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    category: "Student CRUD",
+    student: student.name,
+    details: `Deleted student record from database.`,
+    status: "Processed"
+  };
+  mockReports.unshift(logRow);
+
+  res.json({ success: true });
+});
+
+// --- CRUD API for Teachers ---
+app.get("/api/teachers", (req: Request, res: Response) => {
+  const db = readDb();
+  res.json(db.teachers);
+});
+
+app.post("/api/teachers", (req: Request, res: Response) => {
+  const db = readDb();
+  const { name, qualification, experience, specialization, email, activeBatches } = req.body;
+  
+  if (!name || !specialization) {
+    res.status(400).json({ error: "Name and Specialization are required." });
+    return;
+  }
+
+  const newTeacher = {
+    id: `teacher-${Date.now()}`,
+    name,
+    qualification: qualification || "B.Tech/M.Sc",
+    experience: experience || "5 Years",
+    specialization,
+    email: email || `${name.toLowerCase().replace(/\s+/g, '')}@apexcoaching.edu`,
+    activeBatches: activeBatches || "All Batches"
+  };
+
+  db.teachers.push(newTeacher);
+  writeDb(db);
+
+  // Auto-log to mockReports
+  const logRow: ReportRow = {
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    category: "Teacher CRUD",
+    student: name,
+    details: `Recruited new faculty: ${specialization}`,
+    status: "Processed"
+  };
+  mockReports.unshift(logRow);
+
+  res.status(201).json(newTeacher);
+});
+
+app.put("/api/teachers/:id", (req: Request, res: Response) => {
+  const db = readDb();
+  const { id } = req.params;
+  const index = db.teachers.findIndex(t => t.id === id);
+  if (index === -1) {
+    res.status(404).json({ error: "Teacher not found" });
+    return;
+  }
+
+  const { name, qualification, experience, specialization, email, activeBatches } = req.body;
+  db.teachers[index] = {
+    ...db.teachers[index],
+    name: name || db.teachers[index].name,
+    qualification: qualification || db.teachers[index].qualification,
+    experience: experience || db.teachers[index].experience,
+    specialization: specialization || db.teachers[index].specialization,
+    email: email || db.teachers[index].email,
+    activeBatches: activeBatches || db.teachers[index].activeBatches
+  };
+
+  writeDb(db);
+
+  // Auto-log to mockReports
+  const logRow: ReportRow = {
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    category: "Teacher CRUD",
+    student: db.teachers[index].name,
+    details: `Updated faculty member details.`,
+    status: "Processed"
+  };
+  mockReports.unshift(logRow);
+
+  res.json(db.teachers[index]);
+});
+
+app.delete("/api/teachers/:id", (req: Request, res: Response) => {
+  const db = readDb();
+  const { id } = req.params;
+  const teacher = db.teachers.find(t => t.id === id);
+  if (!teacher) {
+    res.status(404).json({ error: "Teacher not found" });
+    return;
+  }
+
+  db.teachers = db.teachers.filter(t => t.id !== id);
+  writeDb(db);
+
+  // Auto-log to mockReports
+  const logRow: ReportRow = {
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    category: "Teacher CRUD",
+    student: teacher.name,
+    details: `Deleted faculty record from system database.`,
+    status: "Processed"
+  };
+  mockReports.unshift(logRow);
+
+  res.json({ success: true });
+});
+
+// --- CRUD API for Performance/Results ---
+app.get("/api/performance", (req: Request, res: Response) => {
+  const db = readDb();
+  res.json(db.performanceData);
+});
+
+app.post("/api/performance", (req: Request, res: Response) => {
+  const db = readDb();
+  const { studentId, studentName, testTitle, score, totalMarks, percentage, accuracy, rank, date, subject } = req.body;
+  
+  if (!studentName || !testTitle || score === undefined) {
+    res.status(400).json({ error: "Student Name, Test Title, and Score are required." });
+    return;
+  }
+
+  const newPerf = {
+    id: `performance-${Date.now()}`,
+    studentId: studentId || `student-${Date.now()}`,
+    studentName,
+    testTitle,
+    score: Number(score),
+    totalMarks: Number(totalMarks) || 100,
+    percentage: percentage !== undefined ? Number(percentage) : Math.round((Number(score) / (Number(totalMarks) || 100)) * 100),
+    accuracy: accuracy !== undefined ? Number(accuracy) : Math.round((Number(score) / (Number(totalMarks) || 100)) * 100),
+    rank: Number(rank) || 1,
+    date: date || new Date().toISOString().substring(0, 10),
+    subject: subject || "Physics"
+  };
+
+  db.performanceData.unshift(newPerf);
+  writeDb(db);
+
+  // Auto-log to mockReports
+  const logRow: ReportRow = {
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    category: "Test Score",
+    student: studentName,
+    details: `${testTitle} Score: ${score}/${totalMarks || 100} (${newPerf.percentage}%)`,
+    status: "Reported"
+  };
+  mockReports.unshift(logRow);
+
+  res.status(201).json(newPerf);
+});
+
+app.put("/api/performance/:id", (req: Request, res: Response) => {
+  const db = readDb();
+  const { id } = req.params;
+  const index = db.performanceData.findIndex(p => p.id === id);
+  if (index === -1) {
+    res.status(404).json({ error: "Performance record not found" });
+    return;
+  }
+
+  const { studentName, testTitle, score, totalMarks, percentage, accuracy, rank, date, subject } = req.body;
+  db.performanceData[index] = {
+    ...db.performanceData[index],
+    studentName: studentName || db.performanceData[index].studentName,
+    testTitle: testTitle || db.performanceData[index].testTitle,
+    score: score !== undefined ? Number(score) : db.performanceData[index].score,
+    totalMarks: totalMarks !== undefined ? Number(totalMarks) : db.performanceData[index].totalMarks,
+    percentage: percentage !== undefined ? Number(percentage) : db.performanceData[index].percentage,
+    accuracy: accuracy !== undefined ? Number(accuracy) : db.performanceData[index].accuracy,
+    rank: rank !== undefined ? Number(rank) : db.performanceData[index].rank,
+    date: date || db.performanceData[index].date,
+    subject: subject || db.performanceData[index].subject
+  };
+
+  if ((score !== undefined || totalMarks !== undefined) && percentage === undefined) {
+    const s = db.performanceData[index].score;
+    const tm = db.performanceData[index].totalMarks;
+    db.performanceData[index].percentage = Math.round((s / tm) * 100);
+    db.performanceData[index].accuracy = Math.round((s / tm) * 100);
+  }
+
+  writeDb(db);
+
+  // Auto-log to mockReports
+  const logRow: ReportRow = {
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    category: "Test Score",
+    student: db.performanceData[index].studentName,
+    details: `Updated test score for: ${db.performanceData[index].testTitle}`,
+    status: "Reported"
+  };
+  mockReports.unshift(logRow);
+
+  res.json(db.performanceData[index]);
+});
+
+app.delete("/api/performance/:id", (req: Request, res: Response) => {
+  const db = readDb();
+  const { id } = req.params;
+  const perf = db.performanceData.find(p => p.id === id);
+  if (!perf) {
+    res.status(404).json({ error: "Performance record not found" });
+    return;
+  }
+
+  db.performanceData = db.performanceData.filter(p => p.id !== id);
+  writeDb(db);
+
+  // Auto-log to mockReports
+  const logRow: ReportRow = {
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    category: "Test Score",
+    student: perf.studentName,
+    details: `Deleted test score record: ${perf.testTitle}`,
+    status: "Processed"
+  };
+  mockReports.unshift(logRow);
+
+  res.json({ success: true });
 });
 
 // --- Vite Dev Server Middleware Integration ---

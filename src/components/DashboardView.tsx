@@ -20,7 +20,10 @@ import {
   FileCheck, 
   Sliders, 
   ChevronRight,
-  AlertCircle
+  AlertCircle,
+  Pencil,
+  Users,
+  GraduationCap
 } from "lucide-react";
 import { Booking, StudentTask, TestResult, LeaderboardUser } from "../types";
 import { leaderboardUsers, mockTestHistory } from "../data";
@@ -48,6 +51,12 @@ export default function DashboardView({ userRole, userName, onLogout }: Dashboar
   const [tasks, setTasks] = useState<StudentTask[]>([]);
   const [reports, setReports] = useState<any[]>([]);
 
+  // Admin DB CRUD states
+  const [adminSubTab, setAdminSubTab] = useState<"students" | "teachers" | "performance" | "reports">("students");
+  const [dbStudents, setDbStudents] = useState<any[]>([]);
+  const [dbTeachers, setDbTeachers] = useState<any[]>([]);
+  const [dbPerformance, setDbPerformance] = useState<any[]>([]);
+
   // Local input states
   const [bookingDate, setBookingDate] = useState("2026-07-08");
   const [bookingTime, setBookingTime] = useState("16:00");
@@ -65,18 +74,58 @@ export default function DashboardView({ userRole, userName, onLogout }: Dashboar
   const [isBookingLoading, setIsBookingLoading] = useState(false);
   const [isTaskLoading, setIsTaskLoading] = useState(false);
 
+  // --- Student CRUD states and handlers ---
+  const [studentForm, setStudentForm] = useState({
+    name: "",
+    email: "",
+    course: "Class 12 Science",
+    batch: "Batch A",
+    attendance: 100,
+    enrollmentDate: ""
+  });
+  const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
+
+  // --- Teacher CRUD states and handlers ---
+  const [teacherForm, setTeacherForm] = useState({
+    name: "",
+    qualification: "",
+    experience: "",
+    specialization: "Physics",
+    email: "",
+    activeBatches: ""
+  });
+  const [editingTeacherId, setEditingTeacherId] = useState<string | null>(null);
+
+  // --- Performance CRUD states and handlers ---
+  const [perfForm, setPerfForm] = useState({
+    studentName: "",
+    testTitle: "",
+    score: 0,
+    totalMarks: 100,
+    rank: 1,
+    date: "",
+    subject: "Physics"
+  });
+  const [editingPerfId, setEditingPerfId] = useState<string | null>(null);
+
   // Fetch initial data
   const fetchData = async () => {
     try {
-      const [bookingsRes, tasksRes, reportsRes] = await Promise.all([
+      const [bookingsRes, tasksRes, reportsRes, studentsRes, teachersRes, perfRes] = await Promise.all([
         fetch("/api/bookings"),
         fetch("/api/tasks"),
-        fetch("/api/reports")
+        fetch("/api/reports"),
+        fetch("/api/students"),
+        fetch("/api/teachers"),
+        fetch("/api/performance")
       ]);
 
       if (bookingsRes.ok) setBookings(await bookingsRes.json());
       if (tasksRes.ok) setTasks(await tasksRes.json());
       if (reportsRes.ok) setReports(await reportsRes.json());
+      if (studentsRes.ok) setDbStudents(await studentsRes.json());
+      if (teachersRes.ok) setDbTeachers(await teachersRes.json());
+      if (perfRes.ok) setDbPerformance(await perfRes.json());
     } catch (err) {
       console.error("Error synchronizing data with BrightPath backend:", err);
     }
@@ -85,6 +134,142 @@ export default function DashboardView({ userRole, userName, onLogout }: Dashboar
   useEffect(() => {
     fetchData();
   }, [activeTab]);
+
+  const handleStudentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const url = editingStudentId ? `/api/students/${editingStudentId}` : "/api/students";
+    const method = editingStudentId ? "PUT" : "POST";
+    
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(studentForm)
+      });
+      if (res.ok) {
+        setStudentForm({ name: "", email: "", course: "Class 12 Science", batch: "Batch A", attendance: 100, enrollmentDate: "" });
+        setEditingStudentId(null);
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Student submit error:", err);
+    }
+  };
+
+  const handleEditStudent = (student: any) => {
+    setEditingStudentId(student.id);
+    setStudentForm({
+      name: student.name,
+      email: student.email,
+      course: student.course,
+      batch: student.batch,
+      attendance: student.attendance,
+      enrollmentDate: student.enrollmentDate
+    });
+  };
+
+  const handleDeleteStudent = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this student record?")) return;
+    try {
+      const res = await fetch(`/api/students/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Delete student error:", err);
+    }
+  };
+
+  const handleTeacherSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const url = editingTeacherId ? `/api/teachers/${editingTeacherId}` : "/api/teachers";
+    const method = editingTeacherId ? "PUT" : "POST";
+    
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(teacherForm)
+      });
+      if (res.ok) {
+        setTeacherForm({ name: "", qualification: "", experience: "", specialization: "Physics", email: "", activeBatches: "" });
+        setEditingTeacherId(null);
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Teacher submit error:", err);
+    }
+  };
+
+  const handleEditTeacher = (teacher: any) => {
+    setEditingTeacherId(teacher.id);
+    setTeacherForm({
+      name: teacher.name,
+      qualification: teacher.qualification,
+      experience: teacher.experience,
+      specialization: teacher.specialization,
+      email: teacher.email,
+      activeBatches: teacher.activeBatches
+    });
+  };
+
+  const handleDeleteTeacher = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this faculty member?")) return;
+    try {
+      const res = await fetch(`/api/teachers/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Delete teacher error:", err);
+    }
+  };
+
+  const handlePerfSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const url = editingPerfId ? `/api/performance/${editingPerfId}` : "/api/performance";
+    const method = editingPerfId ? "PUT" : "POST";
+    
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(perfForm)
+      });
+      if (res.ok) {
+        setPerfForm({ studentName: "", testTitle: "", score: 0, totalMarks: 100, rank: 1, date: "", subject: "Physics" });
+        setEditingPerfId(null);
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Performance submit error:", err);
+    }
+  };
+
+  const handleEditPerf = (perf: any) => {
+    setEditingPerfId(perf.id);
+    setPerfForm({
+      studentName: perf.studentName,
+      testTitle: perf.testTitle,
+      score: perf.score,
+      totalMarks: perf.totalMarks,
+      rank: perf.rank,
+      date: perf.date,
+      subject: perf.subject
+    });
+  };
+
+  const handleDeletePerf = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this test performance record?")) return;
+    try {
+      const res = await fetch(`/api/performance/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Delete performance error:", err);
+    }
+  };
 
   // Handle Coaching Session booking
   const handleBookSession = async (e: React.FormEvent) => {
@@ -832,16 +1017,16 @@ export default function DashboardView({ userRole, userName, onLogout }: Dashboar
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
               <div>
                 <span className="inline-flex items-center gap-1.5 bg-primary/20 text-primary border border-primary/30 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase mb-1.5">
-                  <Database className="w-3 h-3" /> Live Google Sheets Simulator
+                  <Database className="w-3 h-3" /> Live Google Sheets Simulator & JSON DB
                 </span>
-                <h4 className="text-base font-extrabold">Coaching Administration Sheets Database</h4>
-                <p className="text-xs text-slate-300 mt-0.5">Every student submission, course registration, mock result, and booking logs directly into this database for instant financial and educational analytics.</p>
+                <h4 className="text-base font-extrabold">Coaching Administration & Database Hub</h4>
+                <p className="text-xs text-slate-300 mt-0.5">Full control over the Coaching database records (Students, Teachers, Test Scores) synchronized server-side to <strong>mock-db.json</strong>.</p>
               </div>
 
               {/* Download simulated spreadsheet report */}
               <button
                 onClick={() => {
-                  alert("Preparing BrightPath Coaching administrative report CSV download with student lists, calendar reservations, and payment logs... Enjoy!");
+                  alert("Preparing SK Coaching administrative report CSV download with student lists, calendar reservations, and payment logs... Enjoy!");
                 }}
                 className="px-4 py-2.5 rounded-xl bg-primary hover:bg-yellow-500 text-slate-950 font-extrabold text-xs flex items-center gap-2 active:scale-95 cursor-pointer shadow-md shadow-black/10 transition-all"
               >
@@ -851,64 +1036,664 @@ export default function DashboardView({ userRole, userName, onLogout }: Dashboar
             </div>
           </div>
 
-          {/* Search report logs */}
-          <div className="glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
-              <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">Live Synchronized Report Rows</h4>
-              
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Filter by Student or Action..."
-                  value={searchReportQuery}
-                  onChange={(e) => setSearchReportQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-slate-800 dark:text-white font-medium"
-                />
+          {/* Sub Tab Buttons inside Admin View */}
+          <div className="flex flex-wrap gap-2.5 border-b border-slate-200/50 dark:border-slate-800/50 pb-4">
+            <button
+              onClick={() => setAdminSubTab("students")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                adminSubTab === "students"
+                  ? "bg-primary text-slate-950"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              Students Directory
+            </button>
+            <button
+              onClick={() => setAdminSubTab("teachers")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                adminSubTab === "teachers"
+                  ? "bg-primary text-slate-950"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+              }`}
+            >
+              <GraduationCap className="w-4 h-4" />
+              Faculty Members
+            </button>
+            <button
+              onClick={() => setAdminSubTab("performance")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                adminSubTab === "performance"
+                  ? "bg-primary text-slate-950"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+              }`}
+            >
+              <Award className="w-4 h-4" />
+              Performance & Scores
+            </button>
+            <button
+              onClick={() => setAdminSubTab("reports")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                adminSubTab === "reports"
+                  ? "bg-primary text-slate-950"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              Live Sheets Logs
+            </button>
+          </div>
+
+          {/* 1. STUDENTS MANAGEMENT SUB-TAB */}
+          {adminSubTab === "students" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Left Column: Form */}
+              <div className="lg:col-span-4">
+                <div className="glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
+                  <h4 className="text-sm font-extrabold text-slate-950 dark:text-white mb-1">
+                    {editingStudentId ? "📝 Edit Student Record" : "➕ Add New Student"}
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mb-4">
+                    {editingStudentId ? "Modify specific details for this registered student." : "Register a new student directly into our coaching database."}
+                  </p>
+                  
+                  <form onSubmit={handleStudentSubmit} className="space-y-3.5">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Student Full Name</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Priyanshu Ranjan"
+                        value={studentForm.name}
+                        onChange={(e) => setStudentForm({ ...studentForm, name: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Email Address</label>
+                      <input
+                        type="email"
+                        placeholder="student@example.com"
+                        value={studentForm.email}
+                        onChange={(e) => setStudentForm({ ...studentForm, email: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Target Course Program</label>
+                      <select
+                        value={studentForm.course}
+                        onChange={(e) => setStudentForm({ ...studentForm, course: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                      >
+                        <option value="Class 12 Science">Class 12 Science</option>
+                        <option value="Class 11 Science">Class 11 Science</option>
+                        <option value="Class 12 Commerce">Class 12 Commerce</option>
+                        <option value="Class 11 Commerce">Class 11 Commerce</option>
+                        <option value="Class 10 Foundation">Class 10 Foundation</option>
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Batch</label>
+                        <input
+                          type="text"
+                          placeholder="Batch A"
+                          value={studentForm.batch}
+                          onChange={(e) => setStudentForm({ ...studentForm, batch: e.target.value })}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Attendance %</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          max="100"
+                          placeholder="95.5"
+                          value={studentForm.attendance}
+                          onChange={(e) => setStudentForm({ ...studentForm, attendance: Number(e.target.value) })}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Enrollment Date</label>
+                      <input
+                        type="date"
+                        value={studentForm.enrollmentDate}
+                        onChange={(e) => setStudentForm({ ...studentForm, enrollmentDate: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="submit"
+                        className="flex-1 py-2.5 rounded-xl bg-primary hover:bg-yellow-400 text-slate-950 font-extrabold text-xs shadow-md transition-all cursor-pointer"
+                      >
+                        {editingStudentId ? "Save Changes" : "Create Student"}
+                      </button>
+                      {editingStudentId && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingStudentId(null);
+                            setStudentForm({ name: "", email: "", course: "Class 12 Science", batch: "Batch A", attendance: 100, enrollmentDate: "" });
+                          }}
+                          className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              {/* Right Column: Directory Table */}
+              <div className="lg:col-span-8">
+                <div className="glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800 h-full">
+                  <h4 className="text-sm font-extrabold text-slate-900 dark:text-white mb-4">Active Students Directory</h4>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-mono">
+                          <th className="pb-3 font-semibold">Student Name</th>
+                          <th className="pb-3 font-semibold">Course Program</th>
+                          <th className="pb-3 font-semibold">Batch</th>
+                          <th className="pb-3 font-semibold text-center">Attendance</th>
+                          <th className="pb-3 font-semibold text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                        {dbStudents.map((student) => (
+                          <tr key={student.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/10">
+                            <td className="py-3">
+                              <span className="font-bold text-slate-900 dark:text-white block">{student.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">{student.email}</span>
+                            </td>
+                            <td className="py-3 text-slate-600 dark:text-slate-300 font-medium">{student.course}</td>
+                            <td className="py-3 text-slate-600 dark:text-slate-300 font-mono text-[11px]">{student.batch}</td>
+                            <td className="py-3 text-center">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                student.attendance >= 90 
+                                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400" 
+                                  : "bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400"
+                              }`}>
+                                {student.attendance}%
+                              </span>
+                            </td>
+                            <td className="py-3 text-right">
+                              <div className="flex items-center justify-end gap-2.5">
+                                <button
+                                  onClick={() => handleEditStudent(student)}
+                                  className="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:hover:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer"
+                                  title="Edit Student"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteStudent(student.id)}
+                                  className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 text-rose-600 dark:text-rose-400 transition-all cursor-pointer"
+                                  title="Delete Student"
+                                >
+                                  <Trash className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                        {dbStudents.length === 0 && (
+                          <tr>
+                            <td colSpan={5} className="py-8 text-center text-slate-400">
+                              No student records found. Add one on the left.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
+          )}
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-mono">
-                    <th className="pb-3 font-semibold">Timestamp</th>
-                    <th className="pb-3 font-semibold">Category</th>
-                    <th className="pb-3 font-semibold">Student Name</th>
-                    <th className="pb-3 font-semibold">Transaction / Details</th>
-                    <th className="pb-3 font-semibold text-right">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {filteredReports.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
-                      <td className="py-3 font-mono text-[11px] text-slate-500 dark:text-slate-400">{row.timestamp}</td>
-                      <td className="py-3 font-semibold text-slate-800 dark:text-slate-200">
-                        <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                          {row.category}
-                        </span>
-                      </td>
-                      <td className="py-3 font-bold text-slate-900 dark:text-white">{row.student}</td>
-                      <td className="py-3 text-slate-600 dark:text-slate-300 font-medium">{row.details}</td>
-                      <td className="py-3 text-right">
-                        <span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                          {row.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredReports.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="py-8 text-center text-slate-400">
-                        <AlertCircle className="w-5 h-5 mx-auto mb-2 text-slate-300" />
-                        No reports matching your search query.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+          {/* 2. TEACHERS/FACULTY MANAGEMENT SUB-TAB */}
+          {adminSubTab === "teachers" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Left Column: Form */}
+              <div className="lg:col-span-4">
+                <div className="glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
+                  <h4 className="text-sm font-extrabold text-slate-955 dark:text-white mb-1">
+                    {editingTeacherId ? "📝 Edit Faculty Details" : "➕ Recruit New Faculty"}
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mb-4">
+                    {editingTeacherId ? "Modify expertise qualifications or active program streams." : "Add elite IIT/AIIMS faculties to the coaching program."}
+                  </p>
+                  
+                  <form onSubmit={handleTeacherSubmit} className="space-y-3.5">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Faculty Full Name</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Er. Sumit Pandey"
+                        value={teacherForm.name}
+                        onChange={(e) => setTeacherForm({ ...teacherForm, name: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Qualification Degree</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. M.Tech, IIT Roorkee"
+                        value={teacherForm.qualification}
+                        onChange={(e) => setTeacherForm({ ...teacherForm, qualification: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Experience</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 10 Years"
+                          value={teacherForm.experience}
+                          onChange={(e) => setTeacherForm({ ...teacherForm, experience: e.target.value })}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Subject Specialization</label>
+                        <select
+                          value={teacherForm.specialization}
+                          onChange={(e) => setTeacherForm({ ...teacherForm, specialization: e.target.value })}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        >
+                          <option value="Physics">Physics</option>
+                          <option value="Chemistry">Chemistry</option>
+                          <option value="Mathematics">Mathematics</option>
+                          <option value="Biology">Biology</option>
+                          <option value="Accountancy">Accountancy</option>
+                          <option value="Economics">Economics</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Email Address</label>
+                      <input
+                        type="email"
+                        placeholder="faculty@example.com"
+                        value={teacherForm.email}
+                        onChange={(e) => setTeacherForm({ ...teacherForm, email: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Active Batches Assigned</label>
+                      <input
+                        type="text"
+                        placeholder="Class 11, Class 12 Science"
+                        value={teacherForm.activeBatches}
+                        onChange={(e) => setTeacherForm({ ...teacherForm, activeBatches: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="submit"
+                        className="flex-1 py-2.5 rounded-xl bg-primary hover:bg-yellow-400 text-slate-950 font-extrabold text-xs shadow-md transition-all cursor-pointer"
+                      >
+                        {editingTeacherId ? "Save Changes" : "Recruit Faculty"}
+                      </button>
+                      {editingTeacherId && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingTeacherId(null);
+                            setTeacherForm({ name: "", qualification: "", experience: "", specialization: "Physics", email: "", activeBatches: "" });
+                          }}
+                          className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              {/* Right Column: Faculty Directory Table */}
+              <div className="lg:col-span-8">
+                <div className="glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800 h-full">
+                  <h4 className="text-sm font-extrabold text-slate-900 dark:text-white mb-4">Elite Faculty & Mentors Directory</h4>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-mono">
+                          <th className="pb-3 font-semibold">Faculty Name</th>
+                          <th className="pb-3 font-semibold">Specialization</th>
+                          <th className="pb-3 font-semibold">Qualification</th>
+                          <th className="pb-3 font-semibold">Active Batches</th>
+                          <th className="pb-3 font-semibold text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                        {dbTeachers.map((teacher) => (
+                          <tr key={teacher.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/10">
+                            <td className="py-3">
+                              <span className="font-bold text-slate-900 dark:text-white block">{teacher.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">{teacher.email || `${teacher.name.toLowerCase().replace(/\s+/g, "")}@apexcoaching.edu`}</span>
+                            </td>
+                            <td className="py-3">
+                              <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500">
+                                {teacher.specialization}
+                              </span>
+                            </td>
+                            <td className="py-3 text-slate-600 dark:text-slate-300 font-medium">
+                              <span className="block">{teacher.qualification}</span>
+                              <span className="text-[10px] text-slate-400 block">Experience: {teacher.experience}</span>
+                            </td>
+                            <td className="py-3 text-slate-500 dark:text-slate-400 font-mono text-[10px]">{teacher.activeBatches}</td>
+                            <td className="py-3 text-right">
+                              <div className="flex items-center justify-end gap-2.5">
+                                <button
+                                  onClick={() => handleEditTeacher(teacher)}
+                                  className="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:hover:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer"
+                                  title="Edit Faculty"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteTeacher(teacher.id)}
+                                  className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 text-rose-600 dark:text-rose-400 transition-all cursor-pointer"
+                                  title="Delete Faculty"
+                                >
+                                  <Trash className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                        {dbTeachers.length === 0 && (
+                          <tr>
+                            <td colSpan={5} className="py-8 text-center text-slate-400">
+                              No faculty members recruited yet. Add one on the left.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* 3. PERFORMANCE / STUDENT TESTS EVALUATOR SUB-TAB */}
+          {adminSubTab === "performance" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Left Column: Form */}
+              <div className="lg:col-span-4">
+                <div className="glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
+                  <h4 className="text-sm font-extrabold text-slate-955 dark:text-white mb-1">
+                    {editingPerfId ? "📝 Edit Evaluation Score" : "➕ Log Student Test Score"}
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mb-4">
+                    {editingPerfId ? "Correct student marks or rank indexes." : "Record weekly mock scores which plot immediately on the student Progression Indices."}
+                  </p>
+                  
+                  <form onSubmit={handlePerfSubmit} className="space-y-3.5">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Student Name</label>
+                      <select
+                        value={perfForm.studentName}
+                        onChange={(e) => {
+                          setPerfForm({ 
+                            ...perfForm, 
+                            studentName: e.target.value 
+                          });
+                        }}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        required
+                      >
+                        <option value="">-- Select Student --</option>
+                        {dbStudents.map(s => (
+                          <option key={s.id} value={s.name}>{s.name} ({s.course})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Evaluation Title</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Chapter 3 Mechanics Test"
+                        value={perfForm.testTitle}
+                        onChange={(e) => setPerfForm({ ...perfForm, testTitle: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Subject</label>
+                        <select
+                          value={perfForm.subject}
+                          onChange={(e) => setPerfForm({ ...perfForm, subject: e.target.value })}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        >
+                          <option value="Physics">Physics</option>
+                          <option value="Chemistry">Chemistry</option>
+                          <option value="Mathematics">Mathematics</option>
+                          <option value="Biology">Biology</option>
+                          <option value="Accountancy">Accountancy</option>
+                          <option value="Economics">Economics</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Marks Scored</label>
+                        <input
+                          type="number"
+                          placeholder="96"
+                          value={perfForm.score}
+                          onChange={(e) => setPerfForm({ ...perfForm, score: Number(e.target.value) })}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Marks</label>
+                        <input
+                          type="number"
+                          placeholder="100"
+                          value={perfForm.totalMarks}
+                          onChange={(e) => setPerfForm({ ...perfForm, totalMarks: Number(e.target.value) })}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">All India Rank</label>
+                        <input
+                          type="number"
+                          placeholder="4"
+                          value={perfForm.rank}
+                          onChange={(e) => setPerfForm({ ...perfForm, rank: Number(e.target.value) })}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Evaluation Date</label>
+                      <input
+                        type="date"
+                        value={perfForm.date}
+                        onChange={(e) => setPerfForm({ ...perfForm, date: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-xs text-slate-800 dark:text-white font-medium"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="submit"
+                        className="flex-1 py-2.5 rounded-xl bg-primary hover:bg-yellow-400 text-slate-950 font-extrabold text-xs shadow-md transition-all cursor-pointer"
+                      >
+                        {editingPerfId ? "Save Score" : "Log Test Score"}
+                      </button>
+                      {editingPerfId && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingPerfId(null);
+                            setPerfForm({ studentName: "", testTitle: "", score: 0, totalMarks: 100, rank: 1, date: "", subject: "Physics" });
+                          }}
+                          className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              {/* Right Column: Score Sheet table */}
+              <div className="lg:col-span-8">
+                <div className="glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800 h-full">
+                  <h4 className="text-sm font-extrabold text-slate-900 dark:text-white mb-4">Logged Academic Scores & Evaluation sheets</h4>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-mono">
+                          <th className="pb-3 font-semibold">Student Name</th>
+                          <th className="pb-3 font-semibold">Test Title</th>
+                          <th className="pb-3 font-semibold">Marks</th>
+                          <th className="pb-3 font-semibold text-center">Percentage / Accuracy</th>
+                          <th className="pb-3 font-semibold text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                        {dbPerformance.map((perf) => (
+                          <tr key={perf.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/10">
+                            <td className="py-3">
+                              <span className="font-bold text-slate-900 dark:text-white block">{perf.studentName}</span>
+                              <span className="text-[10px] text-slate-400 block">Date: {perf.date}</span>
+                            </td>
+                            <td className="py-3 font-medium text-slate-600 dark:text-slate-300">
+                              <span className="block font-semibold">{perf.testTitle}</span>
+                              <span className="text-[9px] text-amber-500 font-mono uppercase tracking-widest">{perf.subject}</span>
+                            </td>
+                            <td className="py-3 font-mono text-[13px] font-bold text-slate-700 dark:text-slate-200">
+                              {perf.score} / {perf.totalMarks}
+                            </td>
+                            <td className="py-3 text-center">
+                              <div className="inline-flex flex-col items-center">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-500">
+                                  {perf.percentage}%
+                                </span>
+                                <span className="text-[9px] text-slate-400 font-mono block mt-0.5">Rank: #{perf.rank}</span>
+                              </div>
+                            </td>
+                            <td className="py-3 text-right">
+                              <div className="flex items-center justify-end gap-2.5">
+                                <button
+                                  onClick={() => handleEditPerf(perf)}
+                                  className="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:hover:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer"
+                                  title="Edit Result"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeletePerf(perf.id)}
+                                  className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 text-rose-600 dark:text-rose-400 transition-all cursor-pointer"
+                                  title="Delete Result"
+                                >
+                                  <Trash className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                        {dbPerformance.length === 0 && (
+                          <tr>
+                            <td colSpan={5} className="py-8 text-center text-slate-400">
+                              No evaluation records published yet. Add student marks on the left.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 4. SHEET LOGS SUB-TAB */}
+          {adminSubTab === "reports" && (
+            <div className="glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">Live Synchronized Report Rows</h4>
+                
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Filter by Student or Action..."
+                    value={searchReportQuery}
+                    onChange={(e) => setSearchReportQuery(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 border-none outline-none rounded-xl text-slate-800 dark:text-white font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-mono">
+                      <th className="pb-3 font-semibold">Timestamp</th>
+                      <th className="pb-3 font-semibold">Category</th>
+                      <th className="pb-3 font-semibold">User / Student Name</th>
+                      <th className="pb-3 font-semibold">Transaction / Details</th>
+                      <th className="pb-3 font-semibold text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {filteredReports.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+                        <td className="py-3 font-mono text-[11px] text-slate-500 dark:text-slate-400">{row.timestamp}</td>
+                        <td className="py-3 font-semibold text-slate-800 dark:text-slate-200">
+                          <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                            {row.category}
+                          </span>
+                        </td>
+                        <td className="py-3 font-bold text-slate-900 dark:text-white">{row.student}</td>
+                        <td className="py-3 text-slate-600 dark:text-slate-300 font-medium">{row.details}</td>
+                        <td className="py-3 text-right">
+                          <span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                            {row.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredReports.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="py-8 text-center text-slate-400">
+                          <AlertCircle className="w-5 h-5 mx-auto mb-2 text-slate-300" />
+                          No reports matching your search query.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
         </div>
       )}

@@ -1,0 +1,119 @@
+{
+  "students": [
+    {
+      "id": "student-1",
+      "name": "Aarav Sharma",
+      "email": "aarav.sharma@apexcoaching.edu",
+      "course": "Class 12 Science",
+      "batch": "Batch A",
+      "attendance": 94.8,
+      "enrollmentDate": "2026-04-10"
+    },
+    {
+      "id": "student-2",
+      "name": "Ananya Iyer",
+      "email": "ananya.iyer@apexcoaching.edu",
+      "course": "Class 11 Science",
+      "batch": "Batch B",
+      "attendance": 91.2,
+      "enrollmentDate": "2026-05-15"
+    },
+    {
+      "id": "student-3",
+      "name": "Rohan Patel",
+      "email": "rohan.patel@apexcoaching.edu",
+      "course": "Class 12 Commerce",
+      "batch": "Batch A",
+      "attendance": 88.5,
+      "enrollmentDate": "2026-04-12"
+    },
+    {
+      "id": "student-4",
+      "name": "Rahul Verma",
+      "email": "rahul.verma@apexcoaching.edu",
+      "course": "Class 10 Foundation",
+      "batch": "Batch C",
+      "attendance": 93.4,
+      "enrollmentDate": "2026-07-06"
+    }
+  ],
+  "teachers": [
+    {
+      "id": "teacher-1",
+      "name": "Er. Alok Verma",
+      "qualification": "B.Tech, IIT Kanpur (HOD)",
+      "experience": "12 Years",
+      "specialization": "Physics",
+      "email": "alok.verma@apexcoaching.edu",
+      "activeBatches": "Class 11, Class 12 Science"
+    },
+    {
+      "id": "teacher-2",
+      "name": "Dr. S. K. Sen",
+      "qualification": "Ph.D., IIT Delhi",
+      "experience": "15 Years",
+      "specialization": "Chemistry",
+      "email": "sk.sen@apexcoaching.edu",
+      "activeBatches": "Class 12 Science, NEET Batches"
+    },
+    {
+      "id": "teacher-3",
+      "name": "CA Rajeev Mehta",
+      "qualification": "FCA, B.Com (Hons)",
+      "experience": "10 Years",
+      "specialization": "Accountancy",
+      "email": "rajeev.mehta@apexcoaching.edu",
+      "activeBatches": "Class 11 & 12 Commerce"
+    },
+    {
+      "id": "teacher-4",
+      "name": "Prof. R. Mathur",
+      "qualification": "M.Sc. Mathematics, DU",
+      "experience": "8 Years",
+      "specialization": "Mathematics",
+      "email": "r.mathur@apexcoaching.edu",
+      "activeBatches": "Class 11, Class 12, JEE Mains"
+    }
+  ],
+  "performanceData": [
+    {
+      "id": "performance-1",
+      "studentId": "student-1",
+      "studentName": "Aarav Sharma",
+      "testTitle": "Weekly Physics Mechanics Evaluation",
+      "score": 96,
+      "totalMarks": 100,
+      "percentage": 96,
+      "accuracy": 98,
+      "rank": 4,
+      "date": "2026-07-05",
+      "subject": "Physics"
+    },
+    {
+      "id": "performance-2",
+      "studentId": "student-2",
+      "studentName": "Ananya Iyer",
+      "testTitle": "Weekly Maths Calculus Evaluation",
+      "score": 85,
+      "totalMarks": 100,
+      "percentage": 85,
+      "accuracy": 90,
+      "rank": 12,
+      "date": "2026-07-04",
+      "subject": "Mathematics"
+    },
+    {
+      "id": "performance-3",
+      "studentId": "student-3",
+      "studentName": "Rohan Patel",
+      "testTitle": "Monthly Commerce Partnership Sheet",
+      "score": 90,
+      "totalMarks": 100,
+      "percentage": 90,
+      "accuracy": 92,
+      "rank": 7,
+      "date": "2026-07-03",
+      "subject": "Accountancy"
+    }
+  ]
+}
