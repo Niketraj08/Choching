@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   BookOpen, 
   Menu, 
@@ -16,6 +16,7 @@ import {
   Sparkles,
   HelpCircle
 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 import skLogo from "../assets/images/sk_coaching_logo_1783335954863.jpg";
 
@@ -65,6 +66,17 @@ export default function Navbar({
   const [showMegaMenu, setShowMegaMenu] = useState(false);
   const [mobileMaterialsOpen, setMobileMaterialsOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const menuItems = [
     { label: "Home", view: "home" },
@@ -221,105 +233,182 @@ export default function Navbar({
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+              aria-expanded={isOpen}
+              aria-label="Toggle Menu"
             >
-              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <Menu className="w-5 h-5" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Drawer menu */}
-      {isOpen && (
-        <div className="lg:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-4 px-4 space-y-2 shadow-xl animate-fade-in max-h-[85vh] overflow-y-auto">
-          {/* Quick Search */}
-          <div className="relative mb-2">
-            <Search className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search courses..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 outline-none text-slate-800 dark:text-white"
+      {/* Mobile Slide-in Drawer with backdrop blur */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm lg:hidden"
             />
-          </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            {menuItems.map((item) => {
-              if (item.view === "materials") {
-                return (
-                  <div key={item.view} className="col-span-2 space-y-1.5">
-                    <button
-                      onClick={() => setMobileMaterialsOpen(!mobileMaterialsOpen)}
-                      className={`w-full p-3 rounded-xl text-left text-xs font-bold transition-all flex items-center justify-between ${
-                        currentView === "materials" || currentView === "notes" || currentView === "videos"
-                          ? "bg-amber-500/10 text-amber-500 dark:bg-amber-950/20 dark:text-amber-400"
-                          : "bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300"
-                      }`}
-                    >
-                      <span>Study Material</span>
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileMaterialsOpen ? "rotate-180" : ""}`} />
-                    </button>
-                    {mobileMaterialsOpen && (
-                      <div className="pl-4 pr-2 py-1.5 space-y-1.5 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                        <button
-                          onClick={() => { handleNav("materials"); setMobileMaterialsOpen(false); }}
-                          className="w-full py-2 px-3 text-left text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 text-slate-600 dark:text-slate-300"
-                        >
-                          <BookMarked className="w-3.5 h-3.5 text-amber-500" />
-                          <span>Syllabus Sheets</span>
-                        </button>
-                        <button
-                          onClick={() => { handleNav("notes"); setMobileMaterialsOpen(false); }}
-                          className="w-full py-2 px-3 text-left text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 text-slate-600 dark:text-slate-300"
-                        >
-                          <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
-                          <span>Chapterwise Notes</span>
-                        </button>
-                        <button
-                          onClick={() => { handleNav("videos"); setMobileMaterialsOpen(false); }}
-                          className="w-full py-2 px-3 text-left text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 text-slate-600 dark:text-slate-300"
-                        >
-                          <Calendar className="w-3.5 h-3.5 text-red-500" />
-                          <span>Video Lectures</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-
-              return (
+            {/* Slide-in Drawer */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 220 }}
+              className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-[340px] bg-white dark:bg-slate-900 shadow-2xl flex flex-col lg:hidden border-l border-slate-200 dark:border-slate-800"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation Menu"
+            >
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800/60 shrink-0">
+                <SKCoachingLogo />
                 <button
-                  key={item.view}
-                  onClick={() => handleNav(item.view)}
-                  className={`p-3 rounded-xl text-left text-xs font-bold transition-all ${
-                    currentView === item.view
-                      ? "bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400"
-                      : "bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                  }`}
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
+                  aria-label="Close menu"
                 >
-                  {item.label}
+                  <X className="w-5 h-5" />
                 </button>
-              );
-            })}
-          </div>
+              </div>
 
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-2">
-            <button
-              onClick={() => handleNav("dashboard")}
-              className="w-full py-2.5 rounded-xl border border-amber-500/30 text-amber-600 text-xs font-bold text-center cursor-pointer"
-            >
-              Login
-            </button>
-            <button
-              onClick={onEnrollClick}
-              className="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-extrabold text-center cursor-pointer"
-            >
-              Enroll Now
-            </button>
-          </div>
-        </div>
-      )}
+              {/* Drawer Body - Scrollable */}
+              <div className="flex-1 overflow-y-auto px-5 py-6 space-y-6">
+                {/* Search Box inside Drawer */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold font-mono tracking-wider text-slate-400 dark:text-slate-500 uppercase block px-1">Quick Search</span>
+                  <div className="relative">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Search courses, notes..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 text-xs bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 outline-none text-slate-800 dark:text-white focus:border-amber-500 dark:focus:border-amber-400 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                {/* Navigation Links List */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold font-mono tracking-wider text-slate-400 dark:text-slate-500 uppercase block mb-3 px-1">Navigation</span>
+                  {menuItems.map((item) => {
+                    const isActive = currentView === item.view || 
+                      (item.view === "materials" && (currentView === "materials" || currentView === "notes" || currentView === "videos"));
+                      
+                    if (item.view === "materials") {
+                      return (
+                        <div key={item.view} className="space-y-1">
+                          <button
+                            onClick={() => setMobileMaterialsOpen(!mobileMaterialsOpen)}
+                            className={`w-full flex items-center justify-between p-3.5 rounded-xl text-sm font-semibold transition-all ${
+                              isActive
+                                ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                                : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <BookMarked className={`w-4.5 h-4.5 ${isActive ? "text-amber-500" : "text-slate-400"}`} />
+                              <span>{item.label}</span>
+                            </div>
+                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${mobileMaterialsOpen ? "rotate-180" : ""}`} />
+                          </button>
+                          
+                          <AnimatePresence initial={false}>
+                            {mobileMaterialsOpen && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden pl-4 pr-1 space-y-1"
+                              >
+                                <button
+                                  onClick={() => { handleNav("materials"); setIsOpen(false); }}
+                                  className={`w-full py-2.5 px-4 text-xs font-medium rounded-lg flex items-center gap-2.5 transition-colors ${
+                                    currentView === "materials"
+                                      ? "text-amber-500 dark:text-amber-400 bg-amber-500/5"
+                                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                                  }`}
+                                >
+                                  <BookMarked className="w-4 h-4 text-amber-500" />
+                                  <span>Syllabus Sheets</span>
+                                </button>
+                                <button
+                                  onClick={() => { handleNav("notes"); setIsOpen(false); }}
+                                  className={`w-full py-2.5 px-4 text-xs font-medium rounded-lg flex items-center gap-2.5 transition-colors ${
+                                    currentView === "notes"
+                                      ? "text-emerald-500 dark:text-emerald-400 bg-emerald-500/5"
+                                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                                  }`}
+                                >
+                                  <BookOpen className="w-4 h-4 text-emerald-500" />
+                                  <span>Chapterwise Notes</span>
+                                </button>
+                                <button
+                                  onClick={() => { handleNav("videos"); setIsOpen(false); }}
+                                  className={`w-full py-2.5 px-4 text-xs font-medium rounded-lg flex items-center gap-2.5 transition-colors ${
+                                    currentView === "videos"
+                                      ? "text-red-500 dark:text-red-400 bg-red-500/5"
+                                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                                  }`}
+                                >
+                                  <Calendar className="w-4 h-4 text-red-500" />
+                                  <span>Video Lectures</span>
+                                </button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <button
+                        key={item.view}
+                        onClick={() => { handleNav(item.view); setIsOpen(false); }}
+                        className={`w-full flex items-center gap-3 p-3.5 rounded-xl text-sm font-semibold transition-all ${
+                          isActive
+                            ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full transition-colors ${isActive ? "bg-amber-500" : "bg-transparent border border-slate-300 dark:border-slate-600"}`} />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Drawer Footer */}
+              <div className="p-5 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/50 space-y-3 shrink-0">
+                <button
+                  onClick={() => { handleNav("dashboard"); setIsOpen(false); }}
+                  className="w-full py-3.5 rounded-xl border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold text-center cursor-pointer hover:bg-amber-500/5 transition-colors"
+                >
+                  Student Portal Login
+                </button>
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    if (onEnrollClick) onEnrollClick();
+                  }}
+                  className="w-full py-3.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-extrabold text-center cursor-pointer hover:bg-amber-600 shadow-md shadow-amber-500/10 active:scale-98 transition-all"
+                >
+                  Enroll Now
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }
