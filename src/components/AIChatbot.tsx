@@ -59,20 +59,9 @@ export default function AIChatbot() {
   return (
     <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3.5">
       
-      {/* WhatsApp Floating Trigger */}
-      <a
-        href="https://wa.me/919876543210?text=Hi%20SK%20Coaching!%20I%2520am%2520interested%2520in%2520learning%2520more%2520about%2520your%2520coaching%2520classes."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg hover:shadow-emerald-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-        title="Direct Support on WhatsApp"
-      >
-        <MessageCircle className="w-6 h-6 fill-white text-emerald-500" />
-      </a>
-
       {/* AI Chatbot Float Dialog */}
       {isOpen ? (
-        <div className="w-[340px] sm:w-[380px] h-[480px] rounded-2xl glass-panel-heavy border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden animate-revealUp">
+        <div className="w-[340px] sm:w-[380px] h-[480px] rounded-2xl glass-panel-heavy border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden animate-revealUp bg-white dark:bg-slate-900">
           
           {/* Header */}
           <div className="p-4 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">

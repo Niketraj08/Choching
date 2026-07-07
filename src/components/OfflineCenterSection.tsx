@@ -15,9 +15,10 @@ import {
 
 interface OfflineCenterSectionProps {
   onOpenAdmissionForm?: (courseName: string) => void;
+  onExploreOffline?: () => void;
 }
 
-export default function OfflineCenterSection({ onOpenAdmissionForm }: OfflineCenterSectionProps) {
+export default function OfflineCenterSection({ onOpenAdmissionForm, onExploreOffline }: OfflineCenterSectionProps) {
   const offlineBenefits = [
     {
       icon: <Tv className="w-5 h-5 text-amber-500" />,
@@ -168,7 +169,9 @@ export default function OfflineCenterSection({ onOpenAdmissionForm }: OfflineCen
         <div className="mt-12 text-center">
           <button
             onClick={() => {
-              if (onOpenAdmissionForm) {
+              if (onExploreOffline) {
+                onExploreOffline();
+              } else if (onOpenAdmissionForm) {
                 onOpenAdmissionForm("Class 12 Science");
               } else {
                 alert("Walk-In counseling is active! Fill our entry ticket form for a free physical center seat trial.");

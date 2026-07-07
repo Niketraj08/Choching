@@ -21,9 +21,10 @@ import {
 interface SucceedBentoAndStatsProps {
   onExploreAllFeatures: () => void;
   onEnrollClick: () => void;
+  onJoinOffline?: () => void;
 }
 
-export default function SucceedBentoAndStats({ onExploreAllFeatures, onEnrollClick }: SucceedBentoAndStatsProps) {
+export default function SucceedBentoAndStats({ onExploreAllFeatures, onEnrollClick, onJoinOffline }: SucceedBentoAndStatsProps) {
   
   // Bento features grid
   const bentoFeatures = [
@@ -253,7 +254,13 @@ export default function SucceedBentoAndStats({ onExploreAllFeatures, onEnrollCli
 
             <div className="mt-8 pt-6 border-t border-amber-500/15">
               <button
-                onClick={() => alert("Visiting Offline Centers counseling is active! Direct query registered. Walk in today for admission discount.")}
+                onClick={() => {
+                  if (onJoinOffline) {
+                    onJoinOffline();
+                  } else {
+                    alert("Visiting Offline Centers counseling is active! Direct query registered. Walk in today for admission discount.");
+                  }
+                }}
                 className="w-full py-3 px-5 rounded-xl bg-amber-500 text-slate-950 font-extrabold text-xs tracking-wider uppercase shadow-md shadow-amber-500/10 hover:bg-amber-600 transition-colors"
               >
                 Join Offline Batch Seva
