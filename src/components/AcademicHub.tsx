@@ -20,12 +20,15 @@ import {
   Trophy,
   RefreshCw,
   Check,
-  X
+  X,
+  Volume2,
+  VolumeX
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Note, StudyMaterial, OnlineTest, VideoLecture } from "../types";
 import { notesData, studyMaterialsData, onlineTestsData, videoLecturesData } from "../data";
 import { downloadStudyMaterialPDF, downloadNotePDF } from "../lib/pdfGenerator";
+import { playSuccessSound, playFailureSound } from "../lib/sound";
 
 interface AcademicHubProps {
   initialTab?: "notes" | "materials" | "tests" | "videos" | "quiz";
@@ -66,6 +69,7 @@ export default function AcademicHub({ initialTab = "notes" }: AcademicHubProps) 
   const [quizScore, setQuizScore] = useState<number>(0);
   const [quizIsFinished, setQuizIsFinished] = useState<boolean>(false);
   const [showExplanation, setShowExplanation] = useState<boolean>(false);
+  const [isSoundEnabled, setIsSoundEnabled] = useState<boolean>(true);
 
   const quizTopics = [
     {
@@ -288,6 +292,17 @@ export default function AcademicHub({ initialTab = "notes" }: AcademicHubProps) 
       total: simulatedQuestions.length,
       score: Math.round((correct / simulatedQuestions.length) * 100)
     });
+  };
+
+  const handleFinishQuiz = () => {
+    setQuizIsFinished(true);
+    if (isSoundEnabled) {
+      if (quizScore >= 3) {
+        playSuccessSound();
+      } else {
+        playFailureSound();
+      }
+    }
   };
 
   // Filtered Notes
@@ -813,13 +828,30 @@ export default function AcademicHub({ initialTab = "notes" }: AcademicHubProps) 
                           <h4 className="text-xs font-extrabold text-slate-800 dark:text-white leading-none">{currentTopic.title}</h4>
                         </div>
                       </div>
-                      <button
-                        onClick={() => setSelectedQuizTopicId(null)}
-                        className="text-xs font-bold text-slate-500 hover:text-rose-500 transition-colors flex items-center gap-1 cursor-pointer"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                        Exit Quiz
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setIsSoundEnabled(!isSoundEnabled)}
+                          className="text-xs font-bold text-slate-500 hover:text-amber-500 transition-colors flex items-center gap-1.5 cursor-pointer"
+                          title={isSoundEnabled ? "Mute quiz sound effects" : "Unmute quiz sound effects"}
+                        >
+                          {isSoundEnabled ? (
+                            <Volume2 className="w-3.5 h-3.5 text-amber-500" />
+                          ) : (
+                            <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                          <span className="sr-only sm:not-sr-only text-[10px] tracking-wide uppercase font-mono">
+                            {isSoundEnabled ? "Sound On" : "Muted"}
+                          </span>
+                        </button>
+                        <span className="h-4 w-[1px] bg-slate-200 dark:bg-slate-800 hidden sm:inline" />
+                        <button
+                          onClick={() => setSelectedQuizTopicId(null)}
+                          className="text-xs font-bold text-slate-500 hover:text-rose-500 transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          Exit Quiz
+                        </button>
+                      </div>
                     </div>
 
                     {!quizIsFinished ? (
@@ -947,7 +979,7 @@ export default function AcademicHub({ initialTab = "notes" }: AcademicHubProps) 
                                   setSelectedOptionIdx(null);
                                   setShowExplanation(false);
                                 } else {
-                                  setQuizIsFinished(true);
+                                  handleFinishQuiz();
                                 }
                               }}
                               className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-500/10 active:scale-98 transition-all"

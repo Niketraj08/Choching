@@ -142,7 +142,7 @@ export default function HeroSection({ setView, onOpenAdmissionForm }: HeroSectio
 
           {/* Hero Right Content block - Students frame & Admission card */}
           <div className="lg:col-span-5 relative mt-6 lg:mt-0">
-            <div className="relative mx-auto max-w-[420px] lg:max-w-none flex items-center justify-center">
+            <div className="relative mx-auto max-w-[420px] lg:max-w-none flex items-center justify-center h-[380px] md:h-[450px]">
               
               {/* Main Visual background circle matching the amber arc in the image */}
               <div className="absolute w-[360px] h-[360px] md:w-[420px] md:h-[420px] rounded-full bg-amber-500 overflow-hidden shadow-2xl flex items-end justify-center">
