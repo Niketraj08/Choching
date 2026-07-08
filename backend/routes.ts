@@ -94,27 +94,27 @@ router.post("/chat", async (req: Request, res: Response) => {
   const userQuery = messages[messages.length - 1]?.content || "";
 
   if (!process.env.GEMINI_API_KEY) {
-    // English-first fallback responses matching SK Coaching standards
+    // English & Hindi/Hinglish fallback responses matching SK Coaching standards
     const simulatedAnswers: { [key: string]: string } = {
-      default: "Welcome to SK Coaching Institute Support! How can I assist you with offline admissions, course details (Class 8-12 Science & Commerce), note downloads, or test preparation today?",
-      admission: "Admissions for the upcoming 2026-27 batch are open! We are offering special scholarships for Offline Programs up to 50% off tuition fees through our OSET Scholarship Test. Fill in the quick inquiry form to schedule your tour.",
-      scholarship: "Our Offline Scholarship Admission Test (OSET) is conducted physical-center wide. The test pattern covers general science, mathematics, and analytical reasoning. Students scoring above 90% receive absolute fee concessions.",
-      courses: "We provide physical classes for Grade 8 to 12. Science Stream (Physics, Chemistry, Maths, Biology) and Commerce Stream (Accountancy, Economics, Business Studies) are taught by distinguished faculty including ex-IITians and senior teachers.",
-      faculty: "Our faculty list includes elite academic mentors like Er. Sumit Pandey (M.Tech, IIT Roorkee), Dr. Vandana Joshi, and many retired professors. They conduct face-to-face doubt sessions daily.",
-      test: "We run a structured weekly physical test series on Sundays. Students write on offline papers under Board-simulated examination settings, which are physically evaluated and graded within 48 hours."
+      default: "Welcome to SK Coaching Institute Support! How can I assist you with offline admissions, course details (Class 8-12 Science & Commerce), note downloads, or test preparation today? / SK Coaching में आपका स्वागत है! मैं आपकी क्या सहायता कर सकता हूँ?",
+      admission: "Admissions for the upcoming 2026-27 batch are open! We are offering special scholarships for Offline Programs up to 50% off tuition fees through our OSET Scholarship Test. Fill in the quick inquiry form to schedule your physical center tour. / Admissions open हैं! आप scholarship test (OSET) देकर 50% तक की छूट पा सकते हैं।",
+      scholarship: "Our Offline Scholarship Admission Test (OSET) is conducted physical-center wide. The test pattern covers general science, mathematics, and analytical reasoning. Students scoring above 90% receive absolute fee concessions. / OSET scholarship test में general science, maths और logic के प्रश्न होते हैं। 90% से अधिक अंक लाने पर भारी छूट मिलेगी।",
+      courses: "We provide physical classes for Grade 8 to 12. Science Stream (Physics, Chemistry, Maths, Biology) and Commerce Stream (Accountancy, Economics, Business Studies) are taught by distinguished faculty including ex-IITians and senior teachers. / हम Class 8 से 12 तक Science और Commerce की ऑफ़लाइन क्लासेज़ प्रदान करते हैं।",
+      faculty: "Our faculty list includes elite academic mentors like Er. Sumit Pandey (M.Tech, IIT Roorkee), Dr. Vandana Joshi, and many retired professors. They conduct face-to-face doubt sessions daily. / हमारे यहाँ ex-IITians और अनुभवी प्रोफेसर्स पढ़ाते हैं जो रोज़ाना डाउट सॉल्व करते हैं।",
+      test: "We run a structured weekly physical test series on Sundays. Students write on offline papers under Board-simulated examination settings, which are physically evaluated and graded within 48 hours. / हर रविवार को बोर्ड पैटर्न पर आधारित टेस्ट होता है और 48 घंटे में रिज़ल्ट मिलता है।"
     };
 
     let answer = simulatedAnswers.default;
     const lowerQuery = userQuery.toLowerCase();
-    if (lowerQuery.includes("admission") || lowerQuery.includes("enroll") || lowerQuery.includes("apply") || lowerQuery.includes("join")) {
+    if (lowerQuery.includes("admission") || lowerQuery.includes("enroll") || lowerQuery.includes("apply") || lowerQuery.includes("join") || lowerQuery.includes("dakhila") || lowerQuery.includes("admission kab") || lowerQuery.includes("paisa") || lowerQuery.includes("fee")) {
       answer = simulatedAnswers.admission;
-    } else if (lowerQuery.includes("scholarship") || lowerQuery.includes("discount") || lowerQuery.includes("fee waiver") || lowerQuery.includes("oset")) {
+    } else if (lowerQuery.includes("scholarship") || lowerQuery.includes("discount") || lowerQuery.includes("fee waiver") || lowerQuery.includes("oset") || lowerQuery.includes("chhoot") || lowerQuery.includes("off")) {
       answer = simulatedAnswers.scholarship;
-    } else if (lowerQuery.includes("course") || lowerQuery.includes("class") || lowerQuery.includes("subject") || lowerQuery.includes("syllabus")) {
+    } else if (lowerQuery.includes("course") || lowerQuery.includes("class") || lowerQuery.includes("subject") || lowerQuery.includes("syllabus") || lowerQuery.includes("padhai") || lowerQuery.includes("grade") || lowerQuery.includes("science") || lowerQuery.includes("commerce")) {
       answer = simulatedAnswers.courses;
-    } else if (lowerQuery.includes("faculty") || lowerQuery.includes("teacher") || lowerQuery.includes("mentor") || lowerQuery.includes("sir")) {
+    } else if (lowerQuery.includes("faculty") || lowerQuery.includes("teacher") || lowerQuery.includes("mentor") || lowerQuery.includes("sir") || lowerQuery.includes("madam") || lowerQuery.includes("guruji") || lowerQuery.includes("shikshak")) {
       answer = simulatedAnswers.faculty;
-    } else if (lowerQuery.includes("test") || lowerQuery.includes("quiz") || lowerQuery.includes("exam") || lowerQuery.includes("result") || lowerQuery.includes("score")) {
+    } else if (lowerQuery.includes("test") || lowerQuery.includes("quiz") || lowerQuery.includes("exam") || lowerQuery.includes("result") || lowerQuery.includes("score") || lowerQuery.includes("pariksha") || lowerQuery.includes("ank")) {
       answer = simulatedAnswers.test;
     }
 
@@ -128,7 +128,8 @@ router.post("/chat", async (req: Request, res: Response) => {
     const ai = getAiClient();
     const contextPrompt = `
       You are the SK Coaching AI Counselor, the highly professional, empathetic, and expert AI tutor and support counselor for SK Coaching Institute (premium training institute for Class 8 to 12 Science and Commerce).
-      Answer the user's inquiry elegantly, concisely, and in proper English with high educational expertise.
+      Answer the user's inquiry elegantly, concisely, and in the SAME language of their query (e.g. if they query in Hindi or Hinglish, respond in warm Hindi or Hinglish; if they query in English, respond in professional English) with high educational expertise.
+      Keep responses brief and easy to read.
       Encourage them, and outline why SK Coaching is the absolute best option (e.g., world-class teachers like ex-IITians, high-fidelity physical center infrastructures, real-time sync with Google Sheets simulator, and daily doubt help).
       User query: ${userQuery}
     `;
