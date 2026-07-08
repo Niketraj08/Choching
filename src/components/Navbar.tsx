@@ -14,7 +14,10 @@ import {
   Award, 
   BookMarked,
   Sparkles,
-  HelpCircle
+  HelpCircle,
+  Home,
+  Info,
+  PlayCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -22,8 +25,8 @@ import skLogo from "../assets/images/sk_coaching_logo_1783335954863.jpg";
 
 export function SKCoachingLogo() {
   return (
-    <div className="flex items-center gap-2.5">
-      <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-slate-950 p-0.5 shadow-md border border-amber-500/40 overflow-hidden shrink-0">
+    <div className="flex items-center gap-2 sm:gap-2.5">
+      <div className="relative flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-slate-950 p-0.5 shadow-md border border-amber-500/40 overflow-hidden shrink-0">
         <img 
           src={skLogo} 
           alt="SK Coaching Logo" 
@@ -32,10 +35,10 @@ export function SKCoachingLogo() {
         />
       </div>
       <div className="flex flex-col text-left">
-        <span className="font-sans font-black text-base tracking-tight text-slate-900 dark:text-white leading-none">
+        <span className="font-sans font-black text-sm sm:text-base tracking-tight text-slate-900 dark:text-white leading-none">
           SK <span className="text-amber-500">COACHING</span>
         </span>
-        <span className="text-[9px] font-bold font-mono text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5 leading-none">
+        <span className="text-[7.5px] sm:text-[9px] font-bold font-mono text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5 leading-none">
           Unlock Your Potential
         </span>
       </div>
@@ -95,8 +98,9 @@ export default function Navbar({
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full transition-all duration-300 bg-white/95 dark:bg-slate-900/95 border-b border-slate-200/50 dark:border-slate-800/50 backdrop-blur-md shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <nav className="sticky top-0 z-50 w-full transition-all duration-300 bg-white/95 dark:bg-slate-900/95 border-b border-slate-200/50 dark:border-slate-800/50 backdrop-blur-md shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo Brand */}
           <div 
@@ -204,6 +208,19 @@ export default function Navbar({
               </div>
             </div>
 
+            {/* Premium Theme Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all cursor-pointer"
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? (
+                <Sun className="w-4.5 h-4.5 text-amber-500" />
+              ) : (
+                <Moon className="w-4.5 h-4.5 text-slate-600" />
+              )}
+            </button>
+
             {/* Login Button (Outline style) */}
             <button
               onClick={() => handleNav("dashboard")}
@@ -222,17 +239,32 @@ export default function Navbar({
           </div>
 
           {/* Mobile Navigation controls */}
-          <div className="flex lg:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
+            {/* Theme Toggle in Mobile Header */}
+            <button
+              onClick={toggleDarkMode}
+              className="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors"
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              aria-label="Toggle Theme"
+            >
+              {isDarkMode ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-600" />
+              )}
+            </button>
+
             <button
               onClick={() => handleNav("dashboard")}
-              className="p-1.5 rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 cursor-pointer"
+              className="w-9 h-9 flex items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 cursor-pointer"
               title="Student Portal"
             >
               <User className="w-4 h-4" />
             </button>
+
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+              className="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer"
               aria-expanded={isOpen}
               aria-label="Toggle Menu"
             >
@@ -241,31 +273,33 @@ export default function Navbar({
           </div>
         </div>
       </div>
+    </nav>
 
-      {/* Mobile Slide-in Drawer with backdrop blur */}
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm lg:hidden"
-            />
+    {/* Mobile Slide-in Drawer with backdrop blur */}
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop with higher z-index above sticky header */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-[60] bg-slate-950/60 backdrop-blur-sm lg:hidden"
+          />
 
-            {/* Slide-in Drawer */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-[340px] bg-white dark:bg-slate-900 shadow-2xl flex flex-col lg:hidden border-l border-slate-200 dark:border-slate-800"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Navigation Menu"
-            >
+          {/* Slide-in Drawer with even higher z-index */}
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 220 }}
+            className="fixed top-0 right-0 bottom-0 z-[70] w-full max-w-[300px] sm:max-w-[340px] bg-white dark:bg-slate-950 shadow-2xl flex flex-col lg:hidden border-l border-slate-200 dark:border-slate-800"
+            style={{ backgroundColor: isDarkMode ? "#09090b" : "#ffffff" }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation Menu"
+          >
               {/* Drawer Header */}
               <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800/60 shrink-0">
                 <SKCoachingLogo />
@@ -296,99 +330,146 @@ export default function Navbar({
                 </div>
 
                 {/* Navigation Links List */}
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold font-mono tracking-wider text-slate-400 dark:text-slate-500 uppercase block mb-3 px-1">Navigation</span>
-                  {menuItems.map((item) => {
-                    const isActive = currentView === item.view || 
-                      (item.view === "materials" && (currentView === "materials" || currentView === "notes" || currentView === "videos"));
-                      
-                    if (item.view === "materials") {
-                      return (
-                        <div key={item.view} className="space-y-1">
-                          <button
-                            onClick={() => setMobileMaterialsOpen(!mobileMaterialsOpen)}
-                            className={`w-full flex items-center justify-between p-3.5 rounded-xl text-sm font-semibold transition-all ${
-                              isActive
-                                ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                                : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <BookMarked className={`w-4.5 h-4.5 ${isActive ? "text-amber-500" : "text-slate-400"}`} />
-                              <span>{item.label}</span>
-                            </div>
-                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${mobileMaterialsOpen ? "rotate-180" : ""}`} />
-                          </button>
-                          
-                          <AnimatePresence initial={false}>
-                            {mobileMaterialsOpen && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="overflow-hidden pl-4 pr-1 space-y-1"
-                              >
-                                <button
-                                  onClick={() => { handleNav("materials"); setIsOpen(false); }}
-                                  className={`w-full py-2.5 px-4 text-xs font-medium rounded-lg flex items-center gap-2.5 transition-colors ${
-                                    currentView === "materials"
-                                      ? "text-amber-500 dark:text-amber-400 bg-amber-500/5"
-                                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                                  }`}
-                                >
-                                  <BookMarked className="w-4 h-4 text-amber-500" />
-                                  <span>Syllabus Sheets</span>
-                                </button>
-                                <button
-                                  onClick={() => { handleNav("notes"); setIsOpen(false); }}
-                                  className={`w-full py-2.5 px-4 text-xs font-medium rounded-lg flex items-center gap-2.5 transition-colors ${
-                                    currentView === "notes"
-                                      ? "text-emerald-500 dark:text-emerald-400 bg-emerald-500/5"
-                                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                                  }`}
-                                >
-                                  <BookOpen className="w-4 h-4 text-emerald-500" />
-                                  <span>Chapterwise Notes</span>
-                                </button>
-                                <button
-                                  onClick={() => { handleNav("videos"); setIsOpen(false); }}
-                                  className={`w-full py-2.5 px-4 text-xs font-medium rounded-lg flex items-center gap-2.5 transition-colors ${
-                                    currentView === "videos"
-                                      ? "text-red-500 dark:text-red-400 bg-red-500/5"
-                                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                                  }`}
-                                >
-                                  <Calendar className="w-4 h-4 text-red-500" />
-                                  <span>Video Lectures</span>
-                                </button>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      );
-                    }
-
-                    return (
+                <div className="space-y-5">
+                  {/* Category 1: Academic Hub */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold font-mono tracking-wider text-slate-400 dark:text-slate-500 uppercase block px-1">
+                      Academic Resources
+                    </span>
+                    <div className="grid grid-cols-1 gap-1.5">
                       <button
-                        key={item.view}
-                        onClick={() => { handleNav(item.view); setIsOpen(false); }}
-                        className={`w-full flex items-center gap-3 p-3.5 rounded-xl text-sm font-semibold transition-all ${
-                          isActive
-                            ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                        onClick={() => { handleNav("notes"); setIsOpen(false); }}
+                        className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-xs font-bold transition-all ${
+                          currentView === "notes"
+                            ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-500/20"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 border border-transparent"
                         }`}
                       >
-                        <span className={`w-1.5 h-1.5 rounded-full transition-colors ${isActive ? "bg-amber-500" : "bg-transparent border border-slate-300 dark:border-slate-600"}`} />
-                        <span>{item.label}</span>
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
+                          <BookOpen className="w-4.5 h-4.5 text-emerald-500" />
+                        </div>
+                        <div className="text-left">
+                          <span className="block text-slate-900 dark:text-white font-extrabold text-xs">Chapterwise Notes</span>
+                          <span className="block text-[10px] text-slate-400 dark:text-slate-500 font-normal">Download Premium PDFs</span>
+                        </div>
                       </button>
-                    );
-                  })}
+
+                      <button
+                        onClick={() => { handleNav("materials"); setIsOpen(false); }}
+                        className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-xs font-bold transition-all ${
+                          currentView === "materials"
+                            ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-500/20"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 border border-transparent"
+                        }`}
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+                          <BookMarked className="w-4.5 h-4.5 text-amber-500" />
+                        </div>
+                        <div className="text-left">
+                          <span className="block text-slate-900 dark:text-white font-extrabold text-xs">Syllabus Sheets</span>
+                          <span className="block text-[10px] text-slate-400 dark:text-slate-500 font-normal">Syllabus & Practice Papers</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => { handleNav("videos"); setIsOpen(false); }}
+                        className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-xs font-bold transition-all ${
+                          currentView === "videos"
+                            ? "bg-red-500/10 text-red-600 dark:bg-red-500/10 dark:text-red-400 border border-red-500/20"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 border border-transparent"
+                        }`}
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
+                          <PlayCircle className="w-4.5 h-4.5 text-red-500" />
+                        </div>
+                        <div className="text-left">
+                          <span className="block text-slate-900 dark:text-white font-extrabold text-xs">Video Lectures</span>
+                          <span className="block text-[10px] text-slate-400 dark:text-slate-500 font-normal">Recorded & Live Classes</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => { handleNav("tests"); setIsOpen(false); }}
+                        className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-xs font-bold transition-all ${
+                          currentView === "tests"
+                            ? "bg-purple-500/10 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400 border border-purple-500/20"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 border border-transparent"
+                        }`}
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
+                          <Award className="w-4.5 h-4.5 text-purple-500" />
+                        </div>
+                        <div className="text-left">
+                          <span className="block text-slate-900 dark:text-white font-extrabold text-xs">Test Series</span>
+                          <span className="block text-[10px] text-slate-400 dark:text-slate-500 font-normal">Quizzes & Mock Exams</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Category 2: Institution Links */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold font-mono tracking-wider text-slate-400 dark:text-slate-500 uppercase block px-1">
+                      Quick Links
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => { handleNav("home"); setIsOpen(false); }}
+                        className={`flex flex-col items-start gap-1 p-2.5 rounded-xl transition-all border ${
+                          currentView === "home"
+                            ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border-amber-500/20"
+                            : "bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800"
+                        }`}
+                      >
+                        <Home className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                        <span className="text-xs font-extrabold mt-1">Home</span>
+                      </button>
+
+                      <button
+                        onClick={() => { handleNav("courses"); setIsOpen(false); }}
+                        className={`flex flex-col items-start gap-1 p-2.5 rounded-xl transition-all border ${
+                          currentView === "courses"
+                            ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border-amber-500/20"
+                            : "bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800"
+                        }`}
+                      >
+                        <GraduationCap className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                        <span className="text-xs font-extrabold mt-1">Courses</span>
+                      </button>
+
+                      <button
+                        onClick={() => { handleNav("about"); setIsOpen(false); }}
+                        className={`flex flex-col items-start gap-1 p-2.5 rounded-xl transition-all border ${
+                          currentView === "about"
+                            ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border-amber-500/20"
+                            : "bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800"
+                        }`}
+                      >
+                        <Info className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                        <span className="text-xs font-extrabold mt-1">About Us</span>
+                      </button>
+
+                      <button
+                        onClick={() => { handleNav("contact"); setIsOpen(false); }}
+                        className={`flex flex-col items-start gap-1 p-2.5 rounded-xl transition-all border ${
+                          currentView === "contact"
+                            ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border-amber-500/20"
+                            : "bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800"
+                        }`}
+                      >
+                        <Phone className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                        <span className="text-xs font-extrabold mt-1">Contact Us</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Drawer Footer */}
-              <div className="p-5 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/50 space-y-3 shrink-0">
+              <div 
+                className="p-5 border-t border-slate-100 dark:border-slate-800/60 space-y-3 shrink-0"
+                style={{ backgroundColor: isDarkMode ? "#0d0d11" : "#f8fafc" }}
+              >
                 <button
                   onClick={() => { handleNav("dashboard"); setIsOpen(false); }}
                   className="w-full py-3.5 rounded-xl border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold text-center cursor-pointer hover:bg-amber-500/5 transition-colors"
@@ -409,6 +490,6 @@ export default function Navbar({
           </>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 }
