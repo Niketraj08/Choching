@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-import skLogo from "../assets/images/sk_coaching_logo_1783335954863.jpg";
+import skLogo from "../assets/images/sk_coaching_logo_1783335954863.png";
 
 export function SKCoachingLogo() {
   return (

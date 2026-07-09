@@ -1,6 +1,6 @@
 import React from "react";
 import { Sparkles } from "lucide-react";
-import skCoachingLogo from "../assets/images/sk_coaching_logo_1783335954863.jpg";
+import skCoachingLogo from "../assets/images/sk_coaching_logo_1783335954863.png";
 
 export default function LuxuryLoadingOverlay() {
   return (

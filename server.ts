@@ -3,7 +3,7 @@ import path from "path";
 import apiRouter from "./backend/routes";
 
 const app = express();
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT || "3000", 10);
 
 app.use(express.json());
 
@@ -30,7 +30,7 @@ if (!isProduction) {
   });
 }
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Coaching server running on http://0.0.0.0:${PORT}`);
+app.listen(PORT, "localhost", () => {
+  console.log(`Coaching server running on http://localhost:${PORT}`);
 });
 export default app;

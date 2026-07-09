@@ -11,7 +11,7 @@ import {
   ArrowRight,
   Tv
 } from "lucide-react";
-import logoImg from "../assets/images/sk_coaching_logo_1783335954863.jpg";
+import logoImg from "../assets/images/sk_coaching_logo_1783335954863.png";
 
 interface LoginPortalProps {
   onLoginSuccess: (role: "student" | "teacher" | "admin", username: string) => void;

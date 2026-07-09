@@ -1,6 +1,6 @@
 import React from "react";
 import { Mail, Phone, MapPin, Linkedin, Twitter, Facebook, Youtube, Send } from "lucide-react";
-import skLogo from "../assets/images/sk_coaching_logo_1783335954863.jpg";
+import skLogo from "../assets/images/sk_coaching_logo_1783335954863.png";
 
 interface FooterProps {
   setView: (view: string) => void;
